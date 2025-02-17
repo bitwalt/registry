@@ -50,9 +50,8 @@ function App() {
   const [network, setNetwork] = useState<Network>('signet')
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
   const [copiedId, setCopiedId] = useState<string | null>(null)
-  const [assetFilter, setAssetFilter] = useState('')
   const [pairFilter, setPairFilter] = useState('')
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null)
+  const [sortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null)
 
   useEffect(() => {
     const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -73,7 +72,7 @@ function App() {
     }
   }
 
-  const { data: assetsData, isLoading: isLoadingAssets, error: assetsError } = useQuery({
+  const { data: assetsData, isLoading: isLoadingAssets } = useQuery({
     queryKey: ['assets', network],
     queryFn: async () => {
       try {
@@ -119,35 +118,11 @@ function App() {
     })
   }
 
-  const handleSort = (key: string) => {
-    setSortConfig(current => ({
-      key,
-      direction: current?.key === key && current.direction === 'asc' ? 'desc' : 'asc'
-    }))
-  }
-
-  const handleKeySort = (e: React.KeyboardEvent<HTMLTableHeaderCellElement>, key: string) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      handleSort(key)
-    }
-  }
-
-  const filteredAssets = assetsData?.assets.filter((asset: Asset) =>
-    asset.ticker.toLowerCase().includes(assetFilter.toLowerCase()) ||
-    asset.name.toLowerCase().includes(assetFilter.toLowerCase()) ||
-    asset.asset_id.toLowerCase().includes(assetFilter.toLowerCase())
-  ) || []
-
   const filteredPairs = pairsData?.pairs.filter((pair: Pair) =>
     `${pair.base_asset}/${pair.quote_asset}`.toLowerCase().includes(pairFilter.toLowerCase()) ||
     pair.base_asset_id.toLowerCase().includes(pairFilter.toLowerCase()) ||
     pair.quote_asset_id.toLowerCase().includes(pairFilter.toLowerCase())
   ) || []
-
-  const sortedAssets = sortConfig && filteredAssets.length > 0
-    ? sortData(filteredAssets, sortConfig.key, sortConfig.direction)
-    : filteredAssets
 
   const sortedPairs = sortConfig && filteredPairs.length > 0
     ? sortData(filteredPairs, sortConfig.key, sortConfig.direction)
@@ -251,55 +226,89 @@ function App() {
       </div>
 
       {/* Hero Section */}
-      <div className="hero bg-base-100 py-12">
+      <div className="hero bg-gradient-to-b from-base-100 to-base-200 py-16">
         <div className="hero-content text-center">
-          <div className="max-w-3xl">
-            <div className="flex justify-center mb-6">
-              <img src={logo} alt="KaleidoSwap Logo" className="w-24 h-24" />
+          <div className="max-w-4xl">
+            <div className="flex justify-center mb-8">
+              <div className="relative">
+                <img src={logo} alt="KaleidoSwap Logo" className="w-32 h-32 animate-float" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-base-100/50 blur-xl -z-10"></div>
+              </div>
             </div>
-            <h1 className="text-5xl font-bold mb-4 text-ks-purple">
+            <h1 className="text-6xl font-extrabold mb-6 bg-gradient-to-r from-ks-purple via-ks-blue to-ks-purple bg-clip-text text-transparent animate-gradient">
               KaleidoSwap Registry
             </h1>
-            <p className="py-6 text-lg opacity-90">
-              Explore RGB assets and trading pairs available through the KaleidoSwap market maker on the {network} network. 
+            <p className="py-6 text-xl opacity-90 max-w-3xl mx-auto leading-relaxed">
+              Explore RGB assets and trading pairs available through the KaleidoSwap market maker on the{' '}
+              <span className="font-semibold text-primary">{network}</span> network. 
               These assets can be traded over the Lightning Network using RGB channels.
             </p>
-            <div className="flex flex-col gap-4 items-center">
-              <div className="alert bg-base-200 shadow-lg max-w-2xl">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-info shrink-0 w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <div className="flex flex-col items-start">
-                  <div className="font-medium">How it works:</div>
-                  <p className="text-sm opacity-90 text-left">
-                    1. Browse available RGB assets and trading pairs
-                    <br />
-                    2. Request to open RGB-enabled Lightning channels
-                    <br />
-                    3. Trade assets securely over the Lightning Network
-                  </p>
+            
+            {/* Quick Action Buttons */}
+            <div className="flex flex-wrap justify-center gap-4 mt-8 mb-12">
+              <a href="#assets" className="btn btn-primary btn-lg gap-3 min-w-[200px]">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 7a4 4 0 014-4h8a4 4 0 014 4v10a4 4 0 01-4 4H8a4 4 0 01-4-4V7z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 11h6" />
+                </svg>
+                Browse Assets
+              </a>
+              <a href="#pairs" className="btn btn-secondary btn-lg gap-3 min-w-[200px]">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+                View Pairs
+              </a>
+            </div>
+
+            {/* Info Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+              <div className="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300">
+                <div className="card-body">
+                  <h3 className="card-title text-xl mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    How it works
+                  </h3>
+                  <ul className="steps steps-vertical">
+                    <li className="step step-primary">Browse available RGB assets and trading pairs</li>
+                    <li className="step step-primary">Request to open RGB-enabled Lightning channels</li>
+                    <li className="step step-primary">Trade assets securely over the Lightning Network</li>
+                  </ul>
                 </div>
               </div>
-              <div className="stats shadow-lg bg-base-200">
-                <div className="stat">
-                  <div className="stat-figure text-ks-blue">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 7a4 4 0 014-4h8a4 4 0 014 4v10a4 4 0 01-4 4H8a4 4 0 01-4-4V7z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 11h6" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6" />
+
+              <div className="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300">
+                <div className="card-body">
+                  <h3 className="card-title text-xl mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
+                    Market Stats
+                  </h3>
+                  <div className="stats stats-vertical shadow-lg bg-base-200">
+                    <div className="stat">
+                      <div className="stat-figure text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 7a4 4 0 014-4h8a4 4 0 014 4v10a4 4 0 01-4 4H8a4 4 0 01-4-4V7z" />
+                        </svg>
+                      </div>
+                      <div className="stat-title">RGB Assets</div>
+                      <div className="stat-value text-primary">{assetsData?.assets.length || 0}</div>
+                      <div className="stat-desc">Available for trading</div>
+                    </div>
+                    <div className="stat">
+                      <div className="stat-figure text-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                        </svg>
+                      </div>
+                      <div className="stat-title">Trading Pairs</div>
+                      <div className="stat-value text-secondary">{pairsData?.pairs.length || 0}</div>
+                      <div className="stat-desc">Active markets</div>
+                    </div>
                   </div>
-                  <div className="stat-title">RGB Assets</div>
-                  <div className="stat-value text-ks-blue">{assetsData?.assets.length || 0}</div>
-                  <div className="stat-desc">Available for trading</div>
-                </div>
-                <div className="stat">
-                  <div className="stat-figure text-ks-purple">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                    </svg>
-                  </div>
-                  <div className="stat-title">Trading Pairs</div>
-                  <div className="stat-value text-ks-purple">{pairsData?.pairs.length || 0}</div>
-                  <div className="stat-desc">Active markets</div>
                 </div>
               </div>
             </div>
@@ -307,7 +316,7 @@ function App() {
         </div>
       </div>
 
-      <div className="container mx-auto p-4 space-y-8">
+      <div className="container mx-auto p-4 space-y-8 mb-16">
         {/* Assets Section */}
         <div id="assets" className="card bg-base-100 shadow-xl">
           <div className="card-body">
@@ -474,7 +483,7 @@ function App() {
                         <td colSpan={4} className="text-center py-8">
                           <div className="flex flex-col items-center gap-2 text-base-content/70">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01" />
                             </svg>
                             <p className="text-lg">No trading pairs found</p>
                             <p className="text-sm">Try adjusting your search or check back later</p>
@@ -603,6 +612,52 @@ function App() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="footer footer-center p-10 bg-base-200 text-base-content rounded">
+        <div className="grid grid-flow-col gap-4">
+          <a href="https://github.com/kaleidoswap" className="link link-hover flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-github" viewBox="0 0 16 16">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+            </svg>
+            GitHub
+          </a>
+          <a href="https://docs.kaleidoswap.com" className="link link-hover flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-book" viewBox="0 0 16 16">
+              <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/>
+            </svg>
+            Documentation
+          </a>
+        </div>
+        <div>
+          <div className="grid grid-flow-col gap-4">
+            <a href="https://twitter.com/kaleidoswap" className="btn btn-ghost btn-square">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-twitter-x" viewBox="0 0 16 16">
+                <path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865l8.875 11.633Z"/>
+              </svg>
+            </a>
+            <a href="https://t.me/kaleidoswap" className="btn btn-ghost btn-square">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-telegram" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.287 5.906c-.778.324-2.334.994-4.666 2.01-.378.15-.577.298-.595.442-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294.26.006.549-.1.868-.32 2.179-1.471 3.304-2.214 3.374-2.23.05-.012.12-.026.166.016.047.041.042.12.037.141-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8.154 8.154 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.284.194.568.387.936.629.093.06.183.125.27.187.331.236.63.448.997.414.214-.02.435-.22.547-.82.265-1.417.786-4.486.906-5.751a1.426 1.426 0 0 0-.013-.315.337.337 0 0 0-.114-.217.526.526 0 0 0-.31-.093c-.3.005-.763.166-2.984 1.09z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div className="flex flex-col gap-4 items-center">
+          <div className="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <span className="text-success font-medium">Privacy First</span>
+          </div>
+          <div className="max-w-md text-center opacity-75">
+            <p>This website respects your privacy. We don't use any cookies, trackers, or analytics tools. Your data stays with you.</p>
+          </div>
+          <div className="text-sm opacity-60">
+            <p>© 2025 KaleidoSwap. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

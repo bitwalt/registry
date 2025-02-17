@@ -20,6 +20,24 @@ export default {
         'ks-pink': '#FD9B99',
         'ks-pink-dark': '#F58D8A',
       },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        gradient: {
+          '0%': { 'background-position': '0% 50%' },
+          '50%': { 'background-position': '100% 50%' },
+          '100%': { 'background-position': '0% 50%' },
+        },
+      },
+      animation: {
+        float: 'float 3s ease-in-out infinite',
+        gradient: 'gradient 6s ease infinite',
+      },
+      backgroundSize: {
+        '200%': '200%',
+      },
     },
   },
   plugins: [daisyui],
