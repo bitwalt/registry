@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { BrowserRouter, Routes, Route, Navigate, useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import logo from '/logo.svg'
 
@@ -46,8 +47,9 @@ const API_ENDPOINTS = {
   regtest: 'https://api.regtest.kaleidoswap.com'
 }
 
-function App() {
-  const [network, setNetwork] = useState<Network>('signet')
+function Registry() {
+  const { network = 'signet' } = useParams<{ network?: Network }>()
+  const navigate = useNavigate()
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [pairFilter, setPairFilter] = useState('')
@@ -57,10 +59,6 @@ function App() {
     const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     setTheme(isDark ? 'dark' : 'light')
   }, [])
-
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light')
-  }
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -76,7 +74,7 @@ function App() {
     queryKey: ['assets', network],
     queryFn: async () => {
       try {
-        const response = await axios.get(`${API_ENDPOINTS[network]}/api/v1/market/assets`)
+        const response = await axios.get(`${API_ENDPOINTS[network as Network]}/api/v1/market/assets`)
         return response.data
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -95,7 +93,7 @@ function App() {
     queryKey: ['pairs', network],
     queryFn: async () => {
       try {
-        const response = await axios.get(`${API_ENDPOINTS[network]}/api/v1/market/pairs`)
+        const response = await axios.get(`${API_ENDPOINTS[network as Network]}/api/v1/market/pairs`)
         return response.data
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -170,7 +168,7 @@ function App() {
           </ul>
         </div>
         <div className="navbar-end gap-2">
-          <button onClick={toggleTheme} className="btn btn-ghost btn-circle">
+          <button onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')} className="btn btn-ghost btn-circle">
             {theme === 'dark' ? (
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -194,7 +192,7 @@ function App() {
             <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow-lg bg-base-100 rounded-box w-52">
               <li>
                 <a 
-                  onClick={() => setNetwork('signet')} 
+                  onClick={() => navigate('/signet')} 
                   className={`flex items-center gap-2 ${network === 'signet' ? 'active' : ''}`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -208,7 +206,7 @@ function App() {
               </li>
               <li>
                 <a 
-                  onClick={() => setNetwork('regtest')} 
+                  onClick={() => navigate('/regtest')} 
                   className={`flex items-center gap-2 ${network === 'regtest' ? 'active' : ''}`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -659,6 +657,17 @@ function App() {
         </div>
       </footer>
     </div>
+  )
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/signet" replace />} />
+        <Route path="/:network" element={<Registry />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
