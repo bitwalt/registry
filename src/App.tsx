@@ -126,6 +126,174 @@ function Registry() {
     ? sortData(filteredPairs, sortConfig.key, sortConfig.direction)
     : filteredPairs
 
+  // Add new AssetId component for better ID display
+  const AssetId: React.FC<{ id: string; showTooltip?: boolean; size?: 'sm' | 'md' | 'lg' }> = ({ 
+    id, 
+    showTooltip = true,
+    size = 'md'
+  }) => {
+    const [copied, setCopied] = useState(false)
+    
+    const handleCopy = async (text: string) => {
+      try {
+        await navigator.clipboard.writeText(text)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      } catch (err) {
+        console.error('Failed to copy text: ', err)
+      }
+    }
+
+    const sizeClasses = {
+      sm: 'text-xs',
+      md: 'text-sm',
+      lg: 'text-base'
+    }
+
+    if (id === 'BTC') {
+      return (
+        <div className={`inline-flex items-center font-mono ${sizeClasses[size]}`}>
+          {showTooltip ? (
+            <div className="tooltip tooltip-bottom" data-tip="Click to copy">
+              <button
+                onClick={() => handleCopy('BTC')}
+                className="btn btn-ghost btn-sm normal-case px-2 h-8 min-h-8 gap-2 hover:bg-base-200"
+              >
+                <code className="tracking-wide flex items-center gap-2">
+                  <span className="text-primary font-medium">BTC</span>
+                  {copied ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                    </svg>
+                  )}
+                </code>
+              </button>
+            </div>
+          ) : (
+            <code className="tracking-wide">
+              <span className="text-primary font-medium">BTC</span>
+            </code>
+          )}
+        </div>
+      )
+    }
+    
+    return (
+      <div className={`inline-flex items-center gap-1 font-mono ${sizeClasses[size]}`}>
+        {showTooltip ? (
+          <div className="tooltip tooltip-bottom" data-tip="Click to copy full ID">
+            <button
+              onClick={() => handleCopy(id)}
+              className="btn btn-ghost btn-sm normal-case px-2 h-8 min-h-8 gap-2 hover:bg-base-200"
+            >
+              <code className="tracking-wide">
+                <span className="text-primary">{id.slice(0, 8)}</span>
+                <span className="opacity-40">...</span>
+                <span className="text-secondary">{id.slice(-8)}</span>
+              </code>
+              {copied ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                </svg>
+              )}
+            </button>
+          </div>
+        ) : (
+          <code className="tracking-wide">
+            <span className="text-primary">{id.slice(0, 8)}</span>
+            <span className="opacity-40">...</span>
+            <span className="text-secondary">{id.slice(-8)}</span>
+          </code>
+        )}
+      </div>
+    )
+  }
+
+  // Add PairCard component for better pair display
+  const PairCard: React.FC<{ pair: Pair; assets: Record<string, Asset> }> = ({ pair, assets }) => {
+    const baseAsset = pair.base_asset_id === 'BTC' ? null : assets[pair.base_asset_id]
+    const quoteAsset = pair.quote_asset_id === 'BTC' ? null : assets[pair.quote_asset_id]
+    
+    return (
+      <div className="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+        <div className="card-body p-4">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="avatar placeholder">
+                <div className="bg-neutral text-neutral-content rounded-full w-8">
+                  <span className="text-xs">{pair.base_asset[0]}</span>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold flex items-center gap-2">
+                  <span className={pair.base_asset === 'BTC' ? 'text-warning' : ''}>{pair.base_asset}</span>
+                  <span className="text-base-content/30">/</span>
+                  <span className={pair.quote_asset === 'BTC' ? 'text-warning' : ''}>{pair.quote_asset}</span>
+                </h3>
+                <p className="text-sm opacity-70">
+                  {baseAsset?.name || pair.base_asset} / {quoteAsset?.name || pair.quote_asset}
+                </p>
+              </div>
+            </div>
+            <div className={`badge ${pair.is_active ? 'badge-success' : 'badge-error'} gap-2`}>
+              {pair.is_active ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              )}
+              {pair.is_active ? 'Active' : 'Inactive'}
+            </div>
+          </div>
+
+          {/* Asset IDs */}
+          <div className="bg-base-200 rounded-box p-3 space-y-2">
+            <div className="flex flex-col gap-1">
+              <span className="text-xs opacity-70">Base Asset ID</span>
+              <AssetId id={pair.base_asset_id} size="sm" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-xs opacity-70">Quote Asset ID</span>
+              <AssetId id={pair.quote_asset_id} size="sm" />
+            </div>
+          </div>
+
+          {/* Trading Info */}
+          <div className="grid grid-cols-2 gap-3 mt-3">
+            <div className="stats bg-base-200 shadow-sm">
+              <div className="stat p-2">
+                <div className="stat-title text-xs">Order Size</div>
+                <div className="stat-value text-sm">{pair.min_order_size} - {pair.max_order_size}</div>
+                <div className="stat-desc">{pair.base_asset}</div>
+              </div>
+            </div>
+            <div className="stats bg-base-200 shadow-sm">
+              <div className="stat p-2">
+                <div className="stat-title text-xs">Precision</div>
+                <div className="stat-value text-sm">
+                  {pair.price_precision} / {pair.quantity_precision}
+                </div>
+                <div className="stat-desc">Price / Quantity</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-base-200 transition-colors duration-200" data-theme={theme}>
       {/* Navbar - Improved Mobile */}
@@ -377,24 +545,7 @@ function Registry() {
                       <td className="font-medium text-primary">{asset.ticker}</td>
                       <td>{asset.name}</td>
                       <td>
-                        <button
-                          onClick={() => copyToClipboard(asset.asset_id)}
-                          className="group flex items-center gap-2 font-mono text-sm hover:bg-base-200 rounded-lg px-2 py-1 transition-colors duration-200"
-                        >
-                          <span className="opacity-80">{asset.asset_id}</span>
-                          {copiedId === asset.asset_id ? (
-                            <div className="flex items-center gap-1 text-success">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                              </svg>
-                              <span className="text-xs">Copied!</span>
-                            </div>
-                          ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 opacity-0 group-hover:opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                            </svg>
-                          )}
-                        </button>
+                        <AssetId id={asset.asset_id} />
                       </td>
                       <td>{asset.precision}</td>
                       <td className="font-mono">{new Intl.NumberFormat().format(asset.issued_supply)}</td>
@@ -417,226 +568,69 @@ function Registry() {
         </div>
 
         {/* Trading Pairs Section - Improved Mobile */}
-        <div id="pairs" className="card bg-base-100 shadow-xl">
-          <div className="card-body p-3 sm:p-6">
-            <div className="flex flex-col gap-4 sm:gap-6">
-              <div className="flex justify-between items-center">
-                <h2 className="card-title text-xl sm:text-2xl font-bold flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6 text-ks-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                  </svg>
-                  <span className="text-ks-purple">Trading</span> Pairs
-                </h2>
-                {isLoadingPairs && (
-                  <span className="loading loading-spinner loading-md text-ks-purple"></span>
-                )}
-              </div>
-              
-              {pairsError && (
-                <div className="alert alert-error shadow-lg mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <div>
-                    <h3 className="font-bold">Error loading trading pairs</h3>
-                    <div className="text-sm">{(pairsError as ApiError).message || 'An unexpected error occurred'}</div>
-                  </div>
-                </div>
-              )}
-              
-              {/* Search Box - Improved Mobile */}
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <div className="form-control w-full">
-                    <label htmlFor="pair-search" className="label">
-                      <span className="label-text font-medium">Search Trading Pairs</span>
-                      <span className="label-text-alt opacity-70 hidden sm:inline">Search by pair symbol or asset ID</span>
-                    </label>
-                    <div className="join w-full">
-                      <div className="join-item bg-base-200 px-3 sm:px-4 flex items-center border border-base-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                      </div>
+        <section id="pairs" className="py-8 sm:py-12">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <h2 className="text-2xl sm:text-3xl font-bold">Trading Pairs</h2>
+                <div className="w-full sm:w-auto">
+                  <div className="form-control">
+                    <div className="input-group">
                       <input
-                        id="pair-search"
                         type="text"
                         placeholder="Search pairs..."
-                        className="input input-bordered join-item w-full text-sm sm:text-base focus:outline-none focus:border-ks-purple"
+                        className="input input-bordered w-full sm:w-80"
                         value={pairFilter}
                         onChange={(e) => setPairFilter(e.target.value)}
                       />
-                      {pairFilter && (
-                        <button 
-                          className="btn join-item btn-ghost btn-sm sm:btn-md"
-                          onClick={() => setPairFilter('')}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      )}
+                      <button className="btn btn-square">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="divider" role="separator"></div>
-
-            {/* Trading Pairs Table - Improved Mobile */}
-            <div className="overflow-x-auto -mx-3 sm:mx-0">
-              <table className="table table-zebra table-sm sm:table-md" role="grid">
-                <thead className="bg-base-300 text-base-content text-xs sm:text-sm">
-                  <tr>
-                    <th className="min-w-[140px] sm:min-w-[200px]">Pair</th>
-                    <th>Order Size</th>
-                    <th>Precision</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody className="text-xs sm:text-sm">
-                  {isLoadingPairs ? (
-                    Array.from({ length: 5 }).map((_, index) => (
-                      <tr key={index} className="animate-pulse" role="row" aria-label="Loading pair data">
-                        <td><div className="h-8 bg-base-300 rounded w-32"></div></td>
-                        <td><div className="h-8 bg-base-300 rounded w-32"></div></td>
-                        <td><div className="h-8 bg-base-300 rounded w-32"></div></td>
-                        <td><div className="h-4 bg-base-300 rounded w-16"></div></td>
-                      </tr>
-                    ))
-                  ) : sortedPairs.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="text-center py-8">
-                        <div className="flex flex-col items-center gap-2 text-base-content/70">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01" />
-                          </svg>
-                          <p className="text-lg">No trading pairs found</p>
-                          <p className="text-sm">Try adjusting your search or check back later</p>
-                        </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    sortedPairs.map((pair: Pair) => (
-                      <tr key={pair.id} className="hover transition-colors duration-200" role="row">
-                        <td className="font-medium relative group">
-                          <div className="flex items-center gap-2">
-                            <div className="badge badge-secondary badge-outline text-base p-3">
-                              {`${pair.base_asset}/${pair.quote_asset}`}
-                            </div>
-                            <button
-                              className="btn btn-ghost btn-xs tooltip tooltip-right"
-                              data-tip="Show Asset IDs"
-                              onClick={(e) => {
-                                const tooltip = e.currentTarget.nextElementSibling as HTMLElement;
-                                if (tooltip) {
-                                  tooltip.style.display = tooltip.style.display === 'none' ? 'block' : 'none';
-                                }
-                              }}
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                            </button>
-                            <div className="hidden absolute top-full left-0 mt-2 p-4 bg-base-200 rounded-box shadow-lg z-10 w-max">
-                              <div className="flex flex-col gap-3">
-                                <div className="flex flex-col gap-1">
-                                  <div className="flex items-center justify-between gap-4">
-                                    <span className="text-sm font-medium text-base-content/70">{pair.base_asset} ID:</span>
-                                    <button
-                                      onClick={() => copyToClipboard(pair.base_asset_id)}
-                                      className="group/copy flex items-center gap-2 font-mono text-sm hover:bg-base-300 rounded-lg px-2 py-1 transition-colors duration-200"
-                                      aria-label={`Copy ${pair.base_asset} asset ID`}
-                                    >
-                                      <span className="opacity-80">{pair.base_asset_id}</span>
-                                      {copiedId === pair.base_asset_id ? (
-                                        <div className="flex items-center gap-1 text-success" role="status">
-                                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                          </svg>
-                                          <span className="text-xs">Copied!</span>
-                                        </div>
-                                      ) : (
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 opacity-0 group-hover/copy:opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                                        </svg>
-                                      )}
-                                    </button>
-                                  </div>
-                                  <div className="flex items-center justify-between gap-4">
-                                    <span className="text-sm font-medium text-base-content/70">{pair.quote_asset} ID:</span>
-                                    <button
-                                      onClick={() => copyToClipboard(pair.quote_asset_id)}
-                                      className="group/copy flex items-center gap-2 font-mono text-sm hover:bg-base-300 rounded-lg px-2 py-1 transition-colors duration-200"
-                                      aria-label={`Copy ${pair.quote_asset} asset ID`}
-                                    >
-                                      <span className="opacity-80">{pair.quote_asset_id}</span>
-                                      {copiedId === pair.quote_asset_id ? (
-                                        <div className="flex items-center gap-1 text-success" role="status">
-                                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                          </svg>
-                                          <span className="text-xs">Copied!</span>
-                                        </div>
-                                      ) : (
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 opacity-0 group-hover/copy:opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                                        </svg>
-                                      )}
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm opacity-70">Min:</span>
-                              <span className="font-mono">{new Intl.NumberFormat().format(pair.min_order_size)}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm opacity-70">Max:</span>
-                              <span className="font-mono">{new Intl.NumberFormat().format(pair.max_order_size)}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm opacity-70">Price:</span>
-                              <span className="font-mono">{pair.price_precision}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm opacity-70">Quantity:</span>
-                              <span className="font-mono">{pair.quantity_precision}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          <div 
-                            className={`badge ${pair.is_active ? 'badge-success' : 'badge-error'} gap-2`}
-                            role="status"
-                            aria-label={`Pair status: ${pair.is_active ? 'Active' : 'Inactive'}`}
-                          >
-                            {pair.is_active ? 
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-4 h-4 stroke-current" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4"></path></svg>
-                              :
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-4 h-4 stroke-current" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                            }
-                            {pair.is_active ? 'Active' : 'Inactive'}
-                          </div>
-                        </td>
-                      </tr>
-                    ))
+              {isLoadingPairs || isLoadingAssets ? (
+                <div className="grid place-items-center py-12">
+                  <span className="loading loading-spinner loading-lg text-primary"></span>
+                </div>
+              ) : pairsError || assetsError ? (
+                <div className="alert alert-error">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Failed to load data. Please try again later.</span>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {sortedPairs.map((pair: Pair) => (
+                    <PairCard
+                      key={pair.id}
+                      pair={pair}
+                      assets={assetsData?.assets.reduce((acc: Record<string, Asset>, asset: Asset) => {
+                        acc[asset.asset_id] = asset
+                        return acc
+                      }, {}) || {}}
+                    />
+                  ))}
+                  {sortedPairs.length === 0 && (
+                    <div className="col-span-full">
+                      <div className="alert">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>No trading pairs found matching your search criteria.</span>
+                      </div>
+                    </div>
                   )}
-                </tbody>
-              </table>
+                </div>
+              )}
             </div>
           </div>
-        </div>
+        </section>
       </div>
 
       {/* Footer - Improved Mobile */}
@@ -644,7 +638,7 @@ function Registry() {
         <div className="grid grid-flow-col gap-3 sm:gap-4">
           <a href="https://github.com/kaleidoswap" className="link link-hover flex items-center gap-2 text-sm sm:text-base">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-github" viewBox="0 0 16 16">
-              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
             </svg>
             <span className="hidden sm:inline">GitHub</span>
           </a>
