@@ -51,7 +51,6 @@ function Registry() {
   const { network = 'signet' } = useParams<{ network?: Network }>()
   const navigate = useNavigate()
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
-  const [copiedId, setCopiedId] = useState<string | null>(null)
   const [pairFilter, setPairFilter] = useState('')
   const [sortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null)
 
@@ -59,16 +58,6 @@ function Registry() {
     const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     setTheme(isDark ? 'dark' : 'light')
   }, [])
-
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedId(text)
-      setTimeout(() => setCopiedId(null), 2000)
-    } catch (err) {
-      console.error('Failed to copy text: ', err)
-    }
-  }
 
   const { data: assetsData, isLoading: isLoadingAssets, error: assetsError } = useQuery({
     queryKey: ['assets', network],
