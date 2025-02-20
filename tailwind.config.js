@@ -12,7 +12,7 @@ export default {
         'xs': '475px',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Mulish', 'sans-serif'],
       },
       colors: {
         'ks-blue': '#8FD5EA',
