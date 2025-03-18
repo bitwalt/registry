@@ -420,8 +420,10 @@ function Registry() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
               <div>
-                <h3 className="font-bold">Test Networks Only</h3>
-                <div className="text-sm">Assets on {network} network are for testing purposes only and have no real monetary value. Do not use real funds.</div>
+                <h3 className="font-bold">Test Environment</h3>
+                <div className="text-sm">
+                  <p className="mt-1">Assets listed here have no real monetary value and are not linked with any official issuer. They are minted by the market maker solely to simulate real scenarios for testing purposes. Do not use real funds.</p>
+                </div>
               </div>
             </div>
             
