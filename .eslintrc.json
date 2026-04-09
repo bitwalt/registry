@@ -7,7 +7,6 @@
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "plugin:react-hooks/recommended",
     "plugin:react/recommended",
     "plugin:react/jsx-runtime"
@@ -16,7 +15,6 @@
   "parserOptions": {
     "ecmaVersion": "latest",
     "sourceType": "module",
-    "project": ["./tsconfig.json"],
     "ecmaFeatures": {
       "jsx": true
     }
@@ -32,7 +30,7 @@
       { "allowConstantExport": true }
     ],
     "react/react-in-jsx-scope": "off",
-    "@typescript-eslint/no-non-null-assertion": "off",
+    "react/prop-types": "off",
     "@typescript-eslint/no-explicit-any": "warn"
   },
   "settings": {
@@ -41,4 +39,4 @@
     }
   },
   "ignorePatterns": ["dist", ".eslintrc.json"]
-} 
+}

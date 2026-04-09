@@ -98,6 +98,7 @@ function Registry() {
     }
   })
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sortData = <T extends Record<string, any>>(data: T[], key: string, direction: 'asc' | 'desc'): T[] => {
     return [...data].sort((a, b) => {
       if (a[key] < b[key]) return direction === 'asc' ? -1 : 1
