@@ -12,16 +12,15 @@ export default {
         'xs': '475px',
       },
       fontFamily: {
-        sans: ['Mulish', 'sans-serif'],
+        sans: ['Space Grotesk', 'sans-serif'],
       },
       colors: {
-        'ks-blue': '#8FD5EA',
-        'ks-blue-dark': '#7AC3D9',
+        'ks-green': '#17B581',
+        'ks-green-light': '#15E99A',
+        'ks-purple': '#6F32FF',
+        'ks-teal': '#2dd4bf',
         'ks-yellow': '#FFF970',
         'ks-yellow-dark': '#F1EA3C',
-        'ks-purple': '#A788FF',
-        'ks-pink': '#FD9B99',
-        'ks-pink-dark': '#F58D8A',
       },
       keyframes: {
         float: {
@@ -48,30 +47,30 @@ export default {
     themes: [
       {
         light: {
-          "primary": "#8FD5EA",    // ks-blue
-          "secondary": "#A788FF",   // ks-purple
-          "accent": "#FFF970",      // ks-yellow
+          "primary": "#17B581",
+          "secondary": "#6F32FF",
+          "accent": "#15E99A",
           "neutral": "#1F2937",
           "base-100": "#FFFFFF",
           "base-200": "#F8FAFC",
-          "base-300": "#F1F5F9",
-          "info": "#7AC3D9",        // ks-blue-dark
-          "success": "#10B981",
-          "warning": "#F1EA3C",     // ks-yellow-dark
-          "error": "#F58D8A",       // ks-pink-dark
+          "base-300": "#E2E8F0",
+          "info": "#2dd4bf",
+          "success": "#15E99A",
+          "warning": "#F1EA3C",
+          "error": "#ef4444",
         },
         dark: {
-          "primary": "#8FD5EA",     // ks-blue
-          "secondary": "#A788FF",    // ks-purple
-          "accent": "#FFF970",       // ks-yellow
-          "neutral": "#1F2937",
-          "base-100": "#0F172A",
-          "base-200": "#1E293B",
-          "base-300": "#334155",
-          "info": "#7AC3D9",         // ks-blue-dark
-          "success": "#10B981",
-          "warning": "#F1EA3C",      // ks-yellow-dark
-          "error": "#F58D8A",        // ks-pink-dark
+          "primary": "#15E99A",
+          "secondary": "#6F32FF",
+          "accent": "#17B581",
+          "neutral": "#21262d",
+          "base-100": "#0d1117",
+          "base-200": "#161b22",
+          "base-300": "#21262d",
+          "info": "#2dd4bf",
+          "success": "#15E99A",
+          "warning": "#F1EA3C",
+          "error": "#f87171",
         },
       },
     ],
@@ -83,4 +82,4 @@ export default {
     logs: false,
     themeRoot: ":root",
   },
-} 
+}
