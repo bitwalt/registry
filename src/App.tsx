@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { BrowserRouter, Routes, Route, Navigate, useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import logo from '/logo.svg'
+import fullLogo from './assets/full-logo.svg'
 import { siGithub, siReadthedocs, siX, siTelegram } from 'simple-icons'
 
 type Network = 'signet' | 'regtest'
@@ -289,11 +290,8 @@ function Registry() {
               </a></li>
             </ul>
           </div>
-          <a className="btn btn-ghost normal-case text-lg sm:text-xl gap-2 px-2">
-            <img src={logo} alt="KaleidoSwap" className="w-7 h-7 sm:w-8 sm:h-8" />
-            <span className="font-bold hidden xs:inline">
-              <span className="text-primary">Kaleido</span><span>Swap</span>
-            </span>
+          <a className="btn btn-ghost normal-case px-2">
+            <img src={fullLogo} alt="KaleidoSwap" className="h-6 sm:h-7 w-auto" />
           </a>
         </div>
         <div className="navbar-center hidden lg:flex">
@@ -614,12 +612,7 @@ function Registry() {
       <footer className="border-t border-base-300 bg-base-100">
         <div className="container mx-auto px-4 py-8 sm:py-12">
           <div className="flex flex-col items-center gap-6">
-            <div className="flex items-center gap-2">
-              <img src={logo} alt="KaleidoSwap" className="w-6 h-6" />
-              <span className="font-bold text-lg">
-                <span className="text-primary">Kaleido</span>Swap
-              </span>
-            </div>
+            <img src={fullLogo} alt="KaleidoSwap" className="h-6 w-auto" />
 
             <div className="flex items-center gap-4">
               <a href="https://github.com/kaleidoswap" className="btn btn-ghost btn-sm gap-2 opacity-60 hover:opacity-100">
